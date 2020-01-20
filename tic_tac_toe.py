@@ -71,6 +71,7 @@ class Board():
                 return i
         for i in range(10):
             if self.cells[i]==" ":
+                self.update_cell(i,player)
                 if self.is_winner(player):
                     return i
         return random.randint(1,9)
