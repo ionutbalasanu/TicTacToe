@@ -4,9 +4,11 @@
 """
 
 import os
+import random
+from random import choice
+from math import inf as infinity
 os.system("cls")
 
-# In[1]:
 #Am creat o tabla pe care se va desfasura jocul 
 class Board():
     #Am creat o lista de elemente 
@@ -21,32 +23,24 @@ class Board():
         print("__________")
         print("          ")
         print(" %s | %s | %s " %(self.cells[7], self.cells[8], self.cells[9]))
-        
+    #inserare mutare in celula corespunzatoare
     def update_cell(self,cell_no,player):
         if self.cells[cell_no]==" ":
             self.cells[cell_no]=player
+    #verificare castigator
     def is_winner(self,player):
-        if self.cells[1]==player and self.cells[2]==player and self.cells[3]==player:
-            return True
-        if self.cells[4]==player and self.cells[5]==player and self.cells[6]==player:
-            return True
-        if self.cells[7]==player and self.cells[8]==player and self.cells[9]==player:
-            return True
-        if self.cells[1]==player and self.cells[5]==player and self.cells[9]==player:
-            return True
-        if self.cells[3]==player and self.cells[5]==player and self.cells[7]==player:
-            return True
-        if self.cells[1]==player and self.cells[4]==player and self.cells[7]==player:
-            return True
-        if self.cells[2]==player and self.cells[5]==player and self.cells[8]==player:
-            return True
-        if self.cells[3]==player and self.cells[6]==player and self.cells[9]==player:
-            return True
-        
+        for combo in [[1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7],[1,4,7],[2,5,8],[3,6,9]]:
+            result= True
+            for cell_no in combo:
+                if self.cells[cell_no]!=player:
+                    result=False
+            if result==True:
+                return True        
         return False
+    #reset board
     def reset(self):
-        self.cells=[" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-    
+        self.cells=[" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]    
+    #verificare egalitate
     def is_draw(self):
         used_cells=0
         for cell in self.cells:
@@ -56,23 +50,49 @@ class Board():
             return True
         else:
             return False
-    def computer_move_easy(self, player):
-        for i in range(1,10):
-            if self.cells[i]==" ":
-                self.update_cell(i,player)
+    #DUMB COMPUTER
+    def computer_move_easy(self, player):     
+        while True:
+            move=random.randint(1,9)
+            if self.cells[move]==" ":
+                self.update_cell(move,player)
                 break
+    def refresh_screen(self):
+        os.system("cls")
+        self.display()
+    def computer_move_hard(self,player):
+        if self.cells[5]==" ":
+            return 5
+        for i in [1,3,7,9]:
+            if self.cells[i]==" ":
+                return i
+        for i in [2,4,6,8]:
+            if self.cells[i]==" ":
+                return i
+        for i in range(10):
+            if self.cells[i]==" ":
+                if self.is_winner(player):
+                    return i
+        return random.randint(1,9)
 board=Board()
 #Am creat o functie de refresh, astfel incat la fiecare mutare sa se afiseze tabla actualizata
-def refresh_screen():
-    os.system("cls")
-    board.display()
+
 
 while True:
-    refresh_screen()
-    
+    board.refresh_screen()
     x_player=int(input("\n Player x) Alege mutarea 1 -> 9. >>>"))
     board.update_cell(x_player,"X")
-    refresh_screen()
+    board.refresh_screen()
+    
+    #o_player=int(input("\n Player 0) Alege mutarea 1 -> 9. >>>"))
+    #board.update_cell(o_player,"0")
+    
+    
+    #board.computer_move_easy("0")
+    
+    move=board.computer_move_hard("0")
+    board.update_cell(move,"0")
+#    board.computer_move_hard("0")  
     
     if board.is_winner("X"):
         print("\n Player X wins")
@@ -90,12 +110,6 @@ while True:
             continue
         else:
             break
-        
-    
-    #o_player=int(input("\n Player 0) Alege mutarea 1 -> 9. >>>"))
-    board.computer_move_easy("0")
-    #board.update_cell(o_player,"0")
-
     if board.is_winner("0"):
         print("\n Player 0 wins")
         play_again=input("New game? (Y/N)")
@@ -104,3 +118,7 @@ while True:
             continue
         else:
             break
+        
+            
+    
+   
