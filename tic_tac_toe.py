@@ -24,7 +24,7 @@ class Board():
         print("          ")
         print(" %s | %s | %s " %(self.cells[7], self.cells[8], self.cells[9]))
     #inserare mutare in celula corespunzatoare
-    def update_cell(self,cell_no,player):
+    def update_cell(self,state,cell_no,player):
         if self.cells[cell_no]==" ":
             self.cells[cell_no]=player
     #verificare castigator
@@ -57,9 +57,49 @@ class Board():
             if self.cells[move]==" ":
                 self.update_cell(move,player)
                 break
+
+   
+    def copy_game_state(self,state):
+        new_state=[" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+        for i in range(10):
+            new_state[i]=state[i]
+        return new_state
     def refresh_screen(self):
         os.system("cls")
         self.display()
+    def computerAI(self,state,player):        
+        moves=[]
+        empty_cells=[]
+        for i in range(10):
+            if self.cells[i]==" ":
+                empty_cells.append(i)
+        for empty_cell in empty_cells:
+            move={}
+            move['index']=empty_cell
+            new_state=self.copy_game_state(state)
+            self.update_cell(new_state,empty_cell,player)
+            
+            if player=='0':
+                result=self.computerAI(new_state,'X')
+                move['score']=result
+            else:
+                result=self.computerAI(new_state,'0')
+                move['score']=result
+            moves.append(move)
+        best_move=0
+        if player=='0':
+            best=-infinity
+            for move in moves:
+                if move['score']>best:
+                    best=move['score']
+                    best_move=move['index']
+        else:
+            best=infinity
+            for move in moves:
+                if move['score']<best:
+                    best=move['score']
+                    best_move=move['index']
+        return best_move
     def computer_move_hard(self,player):
         if self.cells[5]==" ":
             return 5
@@ -81,18 +121,25 @@ board=Board()
 
 while True:
     board.refresh_screen()
+    game_state=[" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+
     x_player=int(input("\n Player x) Alege mutarea 1 -> 9. >>>"))
-    board.update_cell(x_player,"X")
-    board.refresh_screen()
-    
+    board.update_cell(game_state,x_player,"X")
+#    board.refresh_screen()
     #o_player=int(input("\n Player 0) Alege mutarea 1 -> 9. >>>"))
     #board.update_cell(o_player,"0")
     
-    
+    board.refresh_screen()
+
     #board.computer_move_easy("0")
     
-    move=board.computer_move_hard("0")
-    board.update_cell(move,"0")
+    move=board.computerAI(game_state,"0")
+    board.update_cell(game_state,move,"0")
+    board.refresh_screen()
+
+
+    #move=board.computer_move_hard("0")
+    #board.update_cell(move,"0")
 #    board.computer_move_hard("0")  
     
     if board.is_winner("X"):
