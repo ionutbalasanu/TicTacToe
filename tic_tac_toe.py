@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@author: Ionut
-"""
-
 import os
 import random
 from random import choice
@@ -78,7 +73,6 @@ class Board():
             move['index']=empty_cell
             new_state=self.copy_game_state(state)
             self.update_cell(new_state,empty_cell,player)
-            
             if player=='0':
                 result=self.computerAI(new_state,'X')
                 move['score']=result
@@ -121,10 +115,9 @@ board=Board()
 
 while True:
     board.refresh_screen()
-    game_state=[" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
 
     x_player=int(input("\n Player x) Alege mutarea 1 -> 9. >>>"))
-    board.update_cell(game_state,x_player,"X")
+    board.update_cell(board.cells,x_player,"X")
 #    board.refresh_screen()
     #o_player=int(input("\n Player 0) Alege mutarea 1 -> 9. >>>"))
     #board.update_cell(o_player,"0")
@@ -133,9 +126,10 @@ while True:
 
     #board.computer_move_easy("0")
     
-    move=board.computerAI(game_state,"0")
-    board.update_cell(game_state,move,"0")
+    move=board.computerAI(board.cells,"0")
+    board.update_cell(board.cells,move,"0")
     board.refresh_screen()
+    
 
 
     #move=board.computer_move_hard("0")
@@ -166,7 +160,3 @@ while True:
             continue
         else:
             break
-        
-            
-    
-   
