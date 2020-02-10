@@ -6,6 +6,7 @@ import os
 os.system("cls")
 
 class Board():
+    boardSize=0
     def __init__(self,boardSize):
         self.boardSize=boardSize
         self.marks = np.empty((boardSize, boardSize),dtype='str')
@@ -42,26 +43,6 @@ class Board():
     def refresh_screen(self):
         os.system("cls")
         self.printBoard()
-    def makeMove(self, row, col, mark):
-        possible = False  
-        if row==-1 and col==-1:
-            return False
-        
-        row = row - 1
-        col = col - 1
-        
-        if row<0 or row>=self.boardSize or col<0 or col>=self.boardSize:
-            print("Not a valid row or column!")
-            return False
-        
-        if self.marks[row][col] == ' ':
-            self.marks[row][col] = mark
-            possible = True    
-        
-        if not possible and mark=='X':
-            print("\nself position is already taken!")
-        
-        return possible
     def checkWin(self, mark):
         won = False
         for i in range(self.boardSize):
@@ -99,6 +80,52 @@ class Board():
         return won
     def noMoreMoves(self):
         return (self.marks!=' ').all()
+    def copy_game_state(self,state):
+        new_state=np.empty((self.boardSize, self.boardSize),dtype='S')
+        new_state[:,:]=' '
+        for i in range(self.boardSize):
+            for j in range(self.boardSize):
+                new_state[i][j]=state[i][j]
+        return new_state
+
+
+class HumanPlayer(Board):
+    def __init__(self,board):
+       self.name=" "
+       self.playerLetter=' '
+       self.boardSize=board.boardSize
+       self.marks=board.marks
+       
+    def getPlayerName():
+        name=str(input("Enter your name:"))
+        return name
+    def getPlayerLetter():
+        playerLetter=' '
+        while not (playerLetter=='X' or playerLetter=='0'):
+            playerLetter=str(input("Choose your symbol(X or 0): ")).upper()
+        if playerLetter=='X':
+            return ['X','0']
+        else:
+            return['0','X']
+    def makeMove(self, row, col, mark):
+        possible = False  
+        if row==-1 and col==-1:
+            return False
+        
+        row = row - 1
+        col = col - 1
+        
+        if row<0 or row>=self.boardSize or col<0 or col>=self.boardSize:
+            print("Not a valid row or column!")
+            return False
+        
+        if self.marks[row][col] == ' ':
+            self.marks[row][col] = mark
+            possible = True    
+        
+        if not possible and mark=='X':
+            print("\nself position is already taken!")
+class ComputerPlayer(Board):
     def computerEasy(self):
         while True:
             col=random.randint(1,3)
@@ -156,47 +183,30 @@ class Board():
                     best_move = move['index']
                     
         return best_move
-class Player():
-    def __init__(self):
-        self.name=" "
-        self.playerLetter=" "
-    def getPlayerName():
-        name=str(input("Enter your name:"))
-        return name
-    def getPlayerLetter():
-        playerLetter=' '
-        while not (playerLetter=='X' or playerLetter=='0'):
-            playerLetter=str(input("Choose your symbol(X or 0):"))
-        if playerLetter=='X':
-            return ['X','0']
-        else:
-            return['0','X']
-        
 class GamePlay(Board):
     def __init__(self):
-        self.boardSize=" "
+        self.boardSize=0
     def Round(self):
         boardSize = int(input("Please enter the size of the board n (e.g. n=3,4,5,...): "))
         choice=int(input('Enter your choice: 1) Multiplayer  2)Computer easy  3)Computer hard: '))
         board = Board(boardSize)
         board.printBoard()
-        player1,player2=Player.getPlayerLetter()
-        playerName=Player.getPlayerName()
-        if choice==1:
-            player2Name=Player.getPlayerName()
+        player1,player2=HumanPlayer.getPlayerLetter()
+        playerName=HumanPlayer.getPlayerName()
+        humanPlayer=HumanPlayer(board)
 
         while True:
             if choice==1:
                 row, col = -1, -1
-                while not board.makeMove(row, col, player1):
-                    print(playerName+"'s Move")
+                while not humanPlayer.makeMove(row, col, player1):
+                    print(playerName+ "'s Move")
                     row, col = input("Choose your move (row, column): ").split(',')
                     row = int(row)
                     col = int(col)
             
                 board.printBoard()
-                while not board.makeMove(row, col, player2):
-                    print(player2Name+"'s Move")
+                while not humanPlayer.makeMove(row, col, player2):
+                    print("Player 2 Move")
                     row, col = input("Choose your move (row, column): ").split(',')
                     row = int(row)
                     col = int(col)
@@ -205,33 +215,33 @@ class GamePlay(Board):
             if choice==2:
                 row,col=-1,-1
 
-                while not board.makeMove(row, col, player1):
-                    print(playerName+"'s Move")
+                while not humanPlayer.makeMove(row, col, player1):
+                    print(playerName+" Move")
                     row, col = input("Choose your move (row, column): ").split(',')
                     row = int(row)
                     col = int(col)
                 board.printBoard()
-                row,col=board.computerEasy()
-                board.makeMove(row,col,player2)
+                row,col=ComputerPlayer.computerEasy()
+                humanPlayer.makeMove(row,col,player2)
                 board.printBoard()
             if choice==3:
                 game_state=np.empty((boardSize, boardSize),dtype='str')
                 game_state[:,:]=' '
                 row,col=-1,-1
-                while not board.makeMove(row, col, player1):
-                    print(playerName+"'s Move")
+                while not humanPlayer.makeMove(row, col, player1):
+                    print(playerName+ " Move")
                     row, col = input("Choose your move (row, column): ").split(',')
                     row = int(row)
                     col = int(col)
                 board.printBoard()
                 
-                block_choice=board.getBestMove(board.marks,board.players[1])
+                block_choice=ComputerPlayer.getBestMove(board.marks,board.players[1])
                 row=math.ceil((block_choice)/board.boardSize)
                 print("row ",row)
                 col=math.ceil((block_choice)%board.boardSize)
                 print("col ",col)
                 print("alegere ",block_choice)
-                board.makeMove(row,col,player2)
+                humanPlayer.makeMove(row,col,player2)
                 board.printBoard()
                 
             if board.checkWin('X'):
@@ -251,3 +261,8 @@ class GamePlay(Board):
         
 play=GamePlay()
 play.Round()
+    
+    
+    
+     
+    
